@@ -136,7 +136,7 @@ if? 0 do AnyFunc
 `sub` subtracts a sequence of numbers.
 `sub 4 4 4` === `-4`
 
-`pow` powers a sequence of number
+`pow` Takes the first argument to the power of the next arguments
 `pow 2 1 2` === `4`
 
 `xor` inverts the binary representation of numbers
