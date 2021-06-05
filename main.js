@@ -203,7 +203,10 @@ const builtIns = {
 	loop: (args) => {
 		args.shift();
 		args = args.join(" ").split("do");
-
+		let proc = parseArgs(args[0].split(" "));
+		for(let j = proc; j > 0; j--) {
+			run(functions[args[1].trim()], args[1], [])
+		}
 	},
 	eq: (args) => { 
 		args = parseArgs(args);
@@ -247,10 +250,18 @@ const builtIns = {
 	"#UNSECURE(EVAL_NATIVE)": (args, num, fnName) => {
 		if(!globals.unsafe) {
 			console.log(`Failed to execute unsafe function at line ${globals.lineNum} of ${globals.fnName} due to unsafe being set to 'false'.`)
-			console.log("You can change this setting by putting #[unsafe!] in any of your executed functions to toggle the setting")
+			console.log("You can change this setting by putting #[unsafe!] in any of your executed functions to toggle the setting ON. Afterwards,")
+			console.log("you will be unable to turn it off.")
 			exit(1)
 		}
 		eval(args.slice(1).join(" "))
+	},
+	ret:(args) =>{
+		args = parseArgs(args)
+		return {
+			marker:"return!",
+			data: args
+		}
 	}
 };
 
@@ -279,6 +290,10 @@ file.forEach(
   }
 );
 
+let returnOptions = {
+	"return!":(out) => out.data
+};
+
 // Running the code
 function run(codeblock, fnName, args, ret = false) {
   vars.args = args;
@@ -294,6 +309,7 @@ function run(codeblock, fnName, args, ret = false) {
     if (cmd in builtIns) {
       let out = builtIns[cmd](proc, num, fnName);
       if (ret) return out;
+			if(out?.marker in returnOptions) return returnOptions[out.marker](out);
       continue;
     } else if (cmd in functions) {
       vars.fnArgs = proc.slice(1);
@@ -305,7 +321,8 @@ function run(codeblock, fnName, args, ret = false) {
     exit(1);
   }
 
-  // Deprecated because it does not lead the function return any values(! :<)
+  // Deprecated below code because it does not 
+	// let the function return any values(! :<)
 
   /*
   codeblock.forEach((line, num) => {

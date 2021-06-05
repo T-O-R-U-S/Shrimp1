@@ -140,9 +140,13 @@ if? 0 do AnyFunc
 `pow 2 1 2` === `4`
 
 `xor` inverts the binary representation of numbers
+
 `011` === 3
+
 `111` === 7
+
 XOR gate
+
 `100` === 4
 
 `xor 3 4` === 4

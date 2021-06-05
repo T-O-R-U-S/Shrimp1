@@ -1,7 +1,9 @@
 @main {
-	log >base 8 1234<
+	display >codeBlockHere<
 }
 
 @codeBlockHere {
 	display "hi"
+	ret 15
+	display "hey"
 }
