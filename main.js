@@ -128,6 +128,12 @@ const builtIns = {
     let toAdd = parseArgs(args.slice(1));
     // acc == accumulator
     // cur == current value
+    return toAdd.reduce((acc, cur) => Number(acc) + Number(cur));
+  },
+	concat: (args) => {
+    let toAdd = parseArgs(args.slice(1));
+    // acc == accumulator
+    // cur == current value
     return toAdd.reduce((acc, cur) => acc + cur);
   },
 	mult: (args) => {
@@ -161,10 +167,19 @@ const builtIns = {
 		// ParseArgs solves this by changing all the types to Int and
 		// forcing .reduce() to use the int type, but due to laziness
 		// I will not do that and will use the worse solution.
+		if(args.length === 1) {
+			return parseInt(args[0], 2)
+		}
+
 		return args.reduce((acc, val) => Number(acc) + parseInt(val, 2));
 	},
 	hex: (args) => {
 		args = args.slice(1)
+
+		if(args.length === 1) {
+			return parseInt(args[0], 16)
+		}
+
 		return args.reduce((acc, cur) => Number(acc) + parseInt(cur, 16))
 	},
 	xor: (args) => {
@@ -218,6 +233,9 @@ const builtIns = {
 	base: (args) => {
 		let base = args[1];
 		args = args.slice(2);
+		if(args.length === 1) {
+			return parseInt(args[0], base)
+		}
 		return args.reduce((acc, cur) => Number(acc) + parseInt(cur, base))
 	},
 	"#[unsecure!]": () => {

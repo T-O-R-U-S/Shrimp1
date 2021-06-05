@@ -1,7 +1,5 @@
 @main {
-	var myvar [32, 32, 32, ["Nested array", 3, 4, 2, ["Nest it again!"]]]
-	display $myvar
-	if? 1 do codeBlockHere
+	log >base 8 1234<
 }
 
 @codeBlockHere {
