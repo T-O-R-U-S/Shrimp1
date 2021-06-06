@@ -1,5 +1,5 @@
 let { readFileSync } = require("fs");
-const { type } = require("os");
+const prompt = require('prompt-sync')();
 const { exit } = require("process");
 
 let parse = (string) =>
@@ -12,7 +12,9 @@ let parse = (string) =>
 let functions = {};
 
 let vars = {
-  args: ["hi!"],
+  args: {
+
+	},
 };
 
 var globals = {
@@ -39,25 +41,20 @@ let parseArgs = (args, num, fnName) => {
   let parsedArgs = line.match(
 		// String       Number/Float         Variable ref  Func    Double-   Array  Bool
 		//                                                         parse
-    /(".*?(?<!\\)")|([0-9]+(\.[0-9]+)?)|(\$\S+(\.\S+)*)|(>.+?<)|!\(\S+\)|\[.*\]|(true|false)/g
+    /(\$\S+(\.\S+)*)|(".*?(?<!\\)")|([0-9]+(\.[0-9]+)?)|(>.+?<)|!\(\S+\)|\[.*\]|(true|false)/g
   );
 
   let argOptions = {
     $: (elem) => {
-			
       if (elem.slice(1) in vars) {
         return vars[elem.slice(1)];
       } else if (elem.slice(1) in vars.args) {
         return vars.args[elem.slice(1)];
-      }
-			 
-			else {
-				if(!elem) {
+      } else {
 					console.log(
 						`Attempted to access undefined variable at line ${globals.lineNum} of ${globals.fnName}`
 					);
 					exit(1);
-				}
       }
 			
     },
@@ -117,8 +114,8 @@ let parseArgs = (args, num, fnName) => {
 let file = parse(readFileSync("shrimp.imp"));
 
 const builtIns = {
-  display: (args, num, fnName) => {
-    args = parseArgs(args, num, fnName);
+  display: (args) => {
+    args = parseArgs(args);
     console.log(args.join(" "));
   },
   var: (args) => {
@@ -197,6 +194,10 @@ const builtIns = {
 		let proc = parseArgs(args)
 		if(proc[0]) {
 			let fn = args.join(" ").split("do")[1].trim();
+			if(fn in functions)
+				run(functions[fn])
+			else if(fn in builtIns)
+				builtIns[fn](args)
 			run(functions[fn])
 		}
 	},
@@ -204,8 +205,33 @@ const builtIns = {
 		args.shift();
 		args = args.join(" ").split("do");
 		let proc = parseArgs(args[0].split(" "));
+		args = args[1].split(" ").map(elem => elem.trim()).filter(elem => elem !== '');
 		for(let j = proc; j > 0; j--) {
-			run(functions[args[1].trim()], args[1], [])
+			run(functions[args[0]], args[0], [args[0], ...parseArgs(args)])
+		}
+	},
+	while: (args) => {
+		args.shift();
+		args.join(" ").split("do");
+		let orig = args[0];
+		args[0] = parseArgs(args[0].split(" "));
+		args[1] = args.slice(2)
+		args = [
+			...args[0]
+			,
+			...args[1]
+		]
+		// Ik the solution is jank but I had no choice,
+		// for my brain is too small to engineer a better
+		// solution.
+
+		// basically, since parseArgs returns an array (for 
+		// when consistency when designing the interpreter, 
+		// though I am pretty sure this has backfired) I must
+		// now dig into this nested array that has been created
+		// and suffer immense amounts of pain.
+		while(parseArgs(orig.split(" "))[0][0]) {
+			run(functions[args[1]], args[1], [args[1], ...parseArgs(args.slice(1))])
 		}
 	},
 	eq: (args) => { 
@@ -256,6 +282,23 @@ const builtIns = {
 		}
 		eval(args.slice(1).join(" "))
 	},
+	read:(args)=>{
+		let out;
+		if(!args[1]) {
+			out = prompt('')
+		}
+		else
+			out = readFileSync(args[1])
+		return out
+	},
+	inv:(args) => {
+		// For bools only... but the language
+		// is (much like JS) not strictly typed.
+		// p a i n
+		let picked = parseArgs([args[1]])[0];
+		args = args.slice(2).map(arg => !arg)
+		return args[picked]
+	},
 	ret:(args) =>{
 		args = parseArgs(args)
 		return {
@@ -287,6 +330,15 @@ file.forEach(
           .match(/{(\s|\S)+?}/m)
       ).slice(1, -1);
     }
+		if (cmd.startsWith("T!")) {
+			let textBlockName = cmd.slice(2);
+			vars[textBlockName] = parse(
+        file
+          .slice(num)
+          .join("\n")
+          .match(/{(\s|\S)+?}/m)
+      ).slice(1, -1).join('\n');
+		}
   }
 );
 
@@ -296,7 +348,10 @@ let returnOptions = {
 
 // Running the code
 function run(codeblock, fnName, args, ret = false) {
-  vars.args = args;
+	vars.args = {}
+  for(i in args) {
+		vars.args[`(${i})`] = args[i]
+	}
 	globals.fnName = fnName;
   for (num in codeblock) {
 		globals.lineNum = num;
@@ -313,7 +368,7 @@ function run(codeblock, fnName, args, ret = false) {
       continue;
     } else if (cmd in functions) {
       vars.fnArgs = proc.slice(1);
-      let out = run(functions[cmd], cmd, proc);
+      let out = run(functions[cmd], cmd, [proc[0], ...parseArgs(proc)]);
       if (ret) return out;
       continue;
     }

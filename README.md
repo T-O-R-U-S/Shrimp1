@@ -1,18 +1,26 @@
 # Shrimp -- the unconventional programming language
 
-A work in progress programming language. Though it was not inspired by Lisp, the way I ended up building it makes it look A LOT like lisp (e.g, `add 2 2 3` in Shrimp, `(+ 2 2)` in Lisp)
+A work in progress programming language. Though it was not inspired by Lisp, the way I ended up building it makes it look A LOT like lisp (e.g, `add 2 2 3` in Shrimp, `(+ 2 2 3)` in Lisp)
 
 **Notice:** I still have not decided on a convention for the naming of variables and functions.
 Give me suggestions if you've got any! It would be much appreciated :)
 
 ## Writing your first hello world
 ```
-@main {
-  #! "main" is the function run on startup. Every 
-  #! Shrimp program must have this!
+Any text outside of a function is automatically ignored
 
-  #! Any line that starts with #! is a comment. These are automatically 
-  #! ignored and will never be executed.
+"main" is the function run on startup. 
+Every Shrimp program must have this!
+
+To indicate the beginning of a new function, use @<function name> { <codeblock> }.
+
+It will then be later executable in the code by simply referencing the name at the 
+start of any line or as a parameter via the use of >< syntax
+
+@main {
+  #! Any line that starts with #! is a comment. 
+  # These are automatically ignored and will 
+  #! never be executed.
 
   display "Hello world!"
 }
@@ -21,6 +29,21 @@ Give me suggestions if you've got any! It would be much appreciated :)
 ## Comments in Shrimp
 
 Simply prefix any line with `#!` to comment it out.
+
+It cannot be appended to the end of a line
+## Whitespace matters!
+You may have worked with many whitespace-agnostic languages before that assign little meaning to whitespace, however, in Shrimp, whitespace matters!
+
+```
+#! Incorrect
+display 
+"Parameter"
+```
+
+```
+#! Correct
+display "Parameter"
+```
 
 ## Flow control in Shrimp
 This one is a bit unconventional, but If statements can only execute functions.
@@ -48,9 +71,12 @@ The integer/float
 ```
 var mynum 3.5
 display $mynum
+#! 3.5
+
 #! Floats and integers are essentially the same type, so can be added together
 var mynum >add $mynum 3<
 display $mynum
+#! 6.5
 ```
 
 The boolean
@@ -97,7 +123,9 @@ This parses any statements inside it again. To use it, enclose your arguments in
 ## The Shrimp built-in functions
 
 ### Flow control
-`if` -- A basic if statement. Checks if the first argument passed is equal to true, and executes a function block (second argument) if it is.
+`loop` -- repeats an action a given number of times. `loop 15 do anyFunc`. If anyFunc displayed `hey!` once, within this loop, it's displayed 15 times
+
+`if` -- a basic if statement. Checks if the first argument passed is equal to true, and executes a function block (second argument) if it is.
 
 `if?` is similar to the `if` statement, but it is distinct in that it uses JavaScript's rules for the partial equal. E.g, 0 is false, 1 is true.
 
@@ -124,41 +152,74 @@ if? 0 do AnyFunc
 
 > All of these take `n` arguments (Practically infinite).
 
+<hr>
+
 `add` adds a sequence of numbers together.
+
 `add 2 2` === `4`
 
+<hr>
+
 `mult` multiplies a sequence of numbers together.
+
 `mult 2 2` === `4`
 
+<hr>
+
 `div` divides a sequences of numbers.
+
 `div 16 2 2` === `4`
 
+<hr>
+
 `sub` subtracts a sequence of numbers.
+
 `sub 4 4 4` === `-4`
 
+<hr>
+
 `pow` Takes the first argument to the power of the next arguments
+
 `pow 2 1 2` === `4`
 
+`pow 1 2 2` === `1`
+
+<hr>
+
+#### XOR gate explanation
 `xor` inverts the binary representation of numbers
+
+(Binary)
 
 `011` === 3
 
 `111` === 7
 
-XOR gate
+[XOR gate]
 
 `100` === 4
 
 `xor 3 4` === 4
 
+<hr>
+
 `bin` converts a binary number to decimal. `>bin 1000<` === 8
+
 If several numbers are specified, it will add them together.
+
 `bin 10 10` === `4`
+<hr>
 
 `hex` converts a hexadecimal number to decimal. `>hex 0x8<` === 8
+
 If several numbers are specified, it will add them together
+
 `hex 0x2 0x2` === `4`
 
+<hr>
+
 `base` converts a number from a base specified by the first argument.
+
 `base 10 42` === `42`
 
+<hr>
