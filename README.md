@@ -2,8 +2,11 @@
 
 A work in progress programming language. Though it was not inspired by Lisp, the way I ended up building it makes it look A LOT like lisp (e.g, `add 2 2 3` in Shrimp, `(+ 2 2 3)` in Lisp)
 
-**Notice:** I still have not decided on a convention for the naming of variables and functions.
-Give me suggestions if you've got any! It would be much appreciated :)
+## Conventions
+
+use `UpperCamelCase` for variable names and use `camelCase` for function names.
+
+The Shrimp file extension is `.imp`
 
 ## Writing your first hello world
 ```
@@ -19,7 +22,7 @@ start of any line or as a parameter via the use of >< syntax
 
 @main {
   #! Any line that starts with #! is a comment. 
-  # These are automatically ignored and will 
+  #! These are automatically ignored and will 
   #! never be executed.
 
   display "Hello world!"
@@ -133,10 +136,13 @@ Example usage:
 ```
 #! eq is for strict comparison. >eq 1 1< == true, >eq 1 2< == false
 if >eq true true< do AnyFunc
+if true do AnyFunc
 ```
 
 ```
-#! Executes AnyFunc -- Anything (except 0) is executed.
+#! Executes AnyFunc -- Any number (except 0) is executed.
+#! Empty strings are false
+#! Undefined and null are false
 if? 1 do AnyFunc
 #! Does not execute AnyFunc
 if? 0 do AnyFunc
@@ -220,6 +226,6 @@ If several numbers are specified, it will add them together
 
 `base` converts a number from a base specified by the first argument.
 
-`base 10 42` === `42`
+`base 10 4` === `4`
 
 <hr>
