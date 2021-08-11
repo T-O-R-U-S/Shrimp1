@@ -231,3 +231,23 @@ If several numbers are specified, it will add them together
 `base 10 4 4` === `8`
 
 <hr>
+
+<hr>
+
+## Multiline text blocks
+
+These are text blocks defined outside of functions that allow you to easily use multi-line strings.
+
+They are defined by using `T!<var name> {<text block contents>}`
+
+```
+T!multiline {
+  Hello!
+  I'm multiline text! ;)
+}
+
+@Main {
+  display $multiline
+  #! Displays the T! block
+}
+```

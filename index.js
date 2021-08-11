@@ -269,7 +269,7 @@ const builtIns = {
 		return args.reduce((acc, cur) => Number(acc) + parseInt(cur, base))
 	},
 	"#[unsecure!]": () => {
-		if(globals.fnName == "main")
+		if(globals.fnName == "Main")
 			globals.unsafe = false
 		else {
 			console.log("You can only turn off safety in the main function!")
@@ -441,9 +441,9 @@ function run(
 	*/
 }
 
-if (!"main" in functions) {
-  console.log("You must define a main function!");
+if (!"Main" in functions) {
+  console.log("You must define a `Main` function!");
   exit(1);
 }
 
-run(functions["main"], "main", process.argv);
+run(functions["Main"], "Main", process.argv);

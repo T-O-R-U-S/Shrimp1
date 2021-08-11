@@ -1,13 +1,9 @@
-T!cooltext {
-	globals.unsafe = false
-	multiline text!
+T!multiline {
+  Hello!
+  I'm multiline text! ;)
 }
 
-@main {
-	display $cooltext
-}
-
-@passArg {
-	var myVar >inv 0 $myVar<
-	display $myVar $4
+@Main {
+  display $multiline
+  #! Displays the T! block
 }
