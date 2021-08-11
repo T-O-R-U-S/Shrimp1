@@ -1,11 +1,10 @@
 T!cooltext {
 	globals.unsafe = false
+	multiline text!
 }
 
 @main {
-	loop 2: display "Hello!"
-	if? 1: display "Hi!"
-	display >base 10 4 4<
+	display $cooltext
 }
 
 @passArg {

@@ -1,10 +1,12 @@
 # Shrimp -- the unconventional programming language
 
-A work in progress programming language. Though it was not inspired by Lisp, the way I ended up building it makes it look A LOT like lisp (e.g, `add 2 2 3` in Shrimp, `(+ 2 2 3)` in Lisp)
+Taste of the syntax:
+```
+```
 
 ## Conventions
 
-use `UpperCamelCase` for variable names and use `camelCase` for function names.
+use `camelCase` for variable names and use `UpperCamelCase` for function names.
 
 The Shrimp file extension is `.imp`
 
@@ -15,12 +17,12 @@ Any text outside of a function is automatically ignored
 "main" is the function run on startup. 
 Every Shrimp program must have this!
 
-To indicate the beginning of a new function, use @<function name> { <codeblock> }.
+To indicate the beginning of a new function, use @<function name> { <codeblock> } at the start of a line.
 
 It will then be later executable in the code by simply referencing the name at the 
 start of any line or as a parameter via the use of >< syntax
 
-@main {
+@Main {
   #! Any line that starts with #! is a comment. 
   #! These are automatically ignored and will 
   #! never be executed.
@@ -51,16 +53,16 @@ display "Parameter"
 ## Flow control in Shrimp
 This one is a bit unconventional, but If statements can only execute functions.
 ```
-@main {
-  if true do myFunction
+@Main {
+  if true: MyFunction
 }
 
-@myFunction {
+@MyFunction {
   display "This is the truth!"
 }
 ```
 
-## Shrimp's types
+## Shrimp's (loose) types
 
 The string
 ```
@@ -68,15 +70,16 @@ var mystr "Hello! I am a string! I can be displayed :)"
 display $mystr
 var mystr >concat $mystr " But I can also be logged :D"<
 log $mystr
+#! Logging is an unofficial part of the Shrimp standard
 ```
 
-The integer/float
+The number
 ```
 var mynum 3.5
 display $mynum
 #! 3.5
 
-#! Floats and integers are essentially the same type, so can be added together
+#! Floats and integers are essentially the same type (Number), so can be added together
 var mynum >add $mynum 3<
 display $mynum
 #! 6.5
@@ -84,12 +87,12 @@ display $mynum
 
 The boolean
 ```
-@main {
+@Main {
   var mybool true
-  if $mybool do theTruth
+  if $mybool: TheTruth
 }
 
-@theTruth {
+@TheTruth {
   display "The truth!"
 }
 ```
@@ -108,19 +111,19 @@ var myarr ["Hi! I am an array", 42, "We can store multiple types!", ["And we can
 In Shrimp, you cannot simply pass a function to an If statement like so:
 ```
 #! Wrong
-if eq true true do AnyFunc
+if eq true true: AnyFunc
 ```
 Instead, you must inclose it in `>` and `<` to indicate to the parser that you wish to pass in a function
 ```
 #! Correct
-if >eq true true< do AnyFunc
+if >eq true true< : AnyFunc
 ```
 
 ### Variable references
 Prefix any name with `$` and it becomes a variable reference. If the variable doesn't exist, then it throws an error.
 
 ### Nested parsing
-This parses any statements inside it again. To use it, enclose your arguments in `!(` and `)`.
+This parses any statements inside it again. To use it, enclose your arguments in `!(` and `)`. If there is a bug in the interpreter when parsing arguments, use !() to see if it fixes anything
 
 
 ## The Shrimp built-in functions
