@@ -64,7 +64,7 @@ This one is a bit unconventional, but If statements can only execute functions.
 
 The string
 ```
-vary mystr "Hello! I am a string! I can be displayed :)"
+var mystr "Hello! I am a string! I can be displayed :)"
 display $mystr
 var mystr >concat $mystr " But I can also be logged :D"<
 log $mystr
@@ -126,7 +126,7 @@ This parses any statements inside it again. To use it, enclose your arguments in
 ## The Shrimp built-in functions
 
 ### Flow control
-`loop` -- repeats an action a given number of times. `loop 15 do anyFunc`. If anyFunc displayed `hey!` once, within this loop, it's displayed 15 times
+`loop` -- repeats an action a given number of times. `loop 15: display "Hey!"`. Displays `Hey!` 15 times.
 
 `if` -- a basic if statement. Checks if the first argument passed is equal to true, and executes a function block (second argument) if it is.
 
@@ -135,17 +135,17 @@ This parses any statements inside it again. To use it, enclose your arguments in
 Example usage:
 ```
 #! eq is for strict comparison. >eq 1 1< == true, >eq 1 2< == false
-if >eq true true< do AnyFunc
-if true do AnyFunc
+if >eq true true< : display "Hi!"
+if true: display "Hi!"
 ```
 
 ```
 #! Executes AnyFunc -- Any number (except 0) is executed.
 #! Empty strings are false
 #! Undefined and null are false
-if? 1 do AnyFunc
+if? 1: AnyFunc
 #! Does not execute AnyFunc
-if? 0 do AnyFunc
+if? 0: AnyFunc
 ```
 
 ### Comparison
@@ -194,16 +194,13 @@ if? 0 do AnyFunc
 
 #### XOR gate explanation
 `xor` inverts the binary representation of numbers
-
-(Binary)
-
-`011` === 3
-
-`111` === 7
-
-[XOR gate]
-
-`100` === 4
+|Xor|Gate|
+|--|--|
+|Binary|Decimal|
+|011|3|
+|100|4|
+|Output||
+|111|7|
 
 `xor 3 4` === 4
 
@@ -220,12 +217,14 @@ If several numbers are specified, it will add them together.
 
 If several numbers are specified, it will add them together
 
+`0x2` === 2
+
 `hex 0x2 0x2` === `4`
 
 <hr>
 
 `base` converts a number from a base specified by the first argument.
 
-`base 10 4` === `4`
+`base 10 4 4` === `8`
 
 <hr>

@@ -1,23 +1,14 @@
 T!cooltext {
-	This is a multi-line block of text
-	It contains several lines!
-	These also ignore whitespace in beginning and end.
-	But not					in the middle!
+	globals.unsafe = false
 }
 
 @main {
-	var myvar true
-	passArg "hi there!"
-	while $myvar do passArg "hi"
-	display $myvar
+	loop 2: display "Hello!"
+	if? 1: display "Hi!"
+	display >base 10 4 4<
 }
 
-I am only using camelCase because it's what I'm programming the interpreter in.
-
-Still clueless, but I am leaning on a case that does not use any special characters (-, _, #, etc)
-
-My top choices are SCREAMINGCASE (or PASCALCASE if you're lame), camelCase, and UpperCamelCase
-
 @passArg {
-	var myvar >inv 0 $myvar<
+	var myVar >inv 0 $myVar<
+	display $myVar $4
 }

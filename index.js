@@ -2,6 +2,8 @@ let { readFileSync } = require("fs");
 const prompt = require('prompt-sync')();
 const { exit } = require("process");
 
+// Preps a file for being processed
+// by the interpreter
 let parse = (string) =>
   string
     .toString()
@@ -9,21 +11,31 @@ let parse = (string) =>
     .map((elem) => elem.trim())
     .filter((elem) => elem !== "");
 
+let unsafeCheck = () => safe === false;
+
+// User-defined functions (during runtime). Do not alter!
 let functions = {};
 
+// User-defined variable (during runtime). Do not alter! (Unless you're very brave)
 let vars = {
+	// args == arguments passed to functions.
+	// I know. Not the best implementation :^(
   args: {
 
 	},
 };
 
+// Globals: Things that almost every function needs or refers to.
 var globals = {
+	// lineNum & fnName are important for throwing errors
 	lineNum: 0,
 	fnName: "",
+	// this is important to detect if the language is in safe mode
+	// or unsafe mode.
 	unsafe: false
 }
 
-let parseArgs = (args, num, fnName) => {
+let parseArgs = (args) => {
   const line = args.join(" ");
   //
   // The first solution was considered, but then scrapped because it did not honour the order of the arguments :/
@@ -34,6 +46,8 @@ let parseArgs = (args, num, fnName) => {
 	const int = line.match(/\d+(\.\d+)?/g).map(int => parseFloat(int));
 	console.log(str, int)
 	*/
+
+	// FIXME: Bad solution. Please help me fix this before I die of stroke
 
 	// Only used one regex in comparison to several because several reg-exps 
 	// would not honour the order of arguments
@@ -113,6 +127,8 @@ let parseArgs = (args, num, fnName) => {
 
 let file = parse(readFileSync("shrimp.imp"));
 
+
+// built-in functions (A.K.A standard lib)
 const builtIns = {
   display: (args) => {
     args = parseArgs(args);
@@ -184,54 +200,39 @@ const builtIns = {
 		return args.reduce((acc, cur) => Number(acc) ^ parseInt(cur, 16))
 	},
 	if: (args) => {
-		let proc = parseArgs(args)
+		// An if statement. Checks if left-hand is strictly true or not.
+		args = args.join(" ").split(":").map(elem => elem.trim());
+		let proc = parseArgs(args[0].split(" "));
 		if(proc[0] === true) {
-			let fn = args.join(" ").split("do")[1].trim();
-			run(functions[fn])
+			run([args[1]], args[1].split(" ")[0], [args[1].split(" ").slice(1)])
 		}
 	},
 	"if?": (args) => {
-		let proc = parseArgs(args)
+		// Like `if`, but it includes JS' truthy/falsy statements into the mix.
+		args = args.join(" ").split(":").map(elem => elem.trim());
+		let proc = parseArgs(args[0].split(" "));
 		if(proc[0]) {
-			let fn = args.join(" ").split("do")[1].trim();
-			if(fn in functions)
-				run(functions[fn])
-			else if(fn in builtIns)
-				builtIns[fn](args)
-			run(functions[fn])
+			run([args[1]], args[1].split(" ")[0], [args[1].split(" ").slice(1)])
 		}
 	},
 	loop: (args) => {
+		// Remove "loop" from arg list
 		args.shift();
-		args = args.join(" ").split("do");
-		let proc = parseArgs(args[0].split(" "));
-		args = args[1].split(" ").map(elem => elem.trim()).filter(elem => elem !== '');
-		for(let j = proc; j > 0; j--) {
-			run(functions[args[0]], args[0], [args[0], ...parseArgs(args)])
-		}
-	},
-	while: (args) => {
-		args.shift();
-		args.join(" ").split("do");
-		let orig = args[0];
-		args[0] = parseArgs(args[0].split(" "));
-		args[1] = args.slice(2)
-		args = [
-			...args[0]
-			,
-			...args[1]
-		]
-		// Ik the solution is jank but I had no choice,
-		// for my brain is too small to engineer a better
-		// solution.
+		// Glue args back together
+		args = args.join(" ");
+		// Split args again (but using ":")
+		args = args.split(":");
 
-		// basically, since parseArgs returns an array (for 
-		// when consistency when designing the interpreter, 
-		// though I am pretty sure this has backfired) I must
-		// now dig into this nested array that has been created
-		// and suffer immense amounts of pain.
-		while(parseArgs(orig.split(" "))[0][0]) {
-			run(functions[args[1]], args[1], [args[1], ...parseArgs(args.slice(1))])
+		// Important for later -- used to defined
+		// how many times the line will loop for
+		let loopFor = parseInt(args.shift());
+		
+		// Trimming down args[0] to stop unknown
+		// fn errors
+		args[0] = args[0].trim();
+		
+		for(let i = loopFor; i > 0; i--) {
+			run([args[0]], globals.fnName, args[0].split(" "));
 		}
 	},
 	eq: (args) => { 
@@ -268,36 +269,50 @@ const builtIns = {
 		return args.reduce((acc, cur) => Number(acc) + parseInt(cur, base))
 	},
 	"#[unsecure!]": () => {
-		globals.unsafe = true
+		if(globals.fnName == "main")
+			globals.unsafe = false
+		else {
+			console.log("You can only turn off safety in the main function!")
+			exit(1)
+		}
 	},
 	// This function is not part of the Shrimp standard, as the parser may not be written in an interpreted language..!
 	// It should only exist for languages that are interpreted. An optional part of the standard :) (I mean, compiled
 	// Shrimp is also ok too :)
 	"#UNSECURE(EVAL_NATIVE)": (args, num, fnName) => {
 		if(!globals.unsafe) {
-			console.log(`Failed to execute unsafe function at line ${globals.lineNum} of ${globals.fnName} due to unsafe being set to 'false'.`)
-			console.log("You can change this setting by putting #[unsafe!] in any of your executed functions to toggle the setting ON. Afterwards,")
+			console.log(`Failed to execute unsafe function at line ${globals.lineNum} of ${globals.fnName} due to unsecure (global) being set to ${false}.`)
+			console.log("You can change this setting by putting #[unsecure!] in any of your executed functions to toggle the setting ON. Afterwards,")
 			console.log("you will be unable to turn it off.")
 			exit(1)
 		}
 		eval(args.slice(1).join(" "))
 	},
+	"#UNSECURE(EVAL_BLOCK)": (args, num, fnName) => {
+		if(!globals.unsafe) {
+			console.log(`Failed to execute unsafe function at line ${globals.lineNum} of ${globals.fnName} due to unsecure (global) being set to ${false}.`)
+			console.log("You can change this setting by putting #[unsecure!] in any of your executed functions to toggle the setting ON. Afterwards,")
+			console.log("you will be unable to turn it off.")
+			exit(1)
+		}
+		let arg = vars[args.slice(1)[0]]
+		eval(arg)
+	},
 	read:(args)=>{
 		let out;
-		if(!args[1]) {
-			out = prompt('')
-		}
-		else
-			out = readFileSync(args[1])
+		out = readFileSync(args[1] || "")
 		return out
 	},
 	inv:(args) => {
-		// For bools only... but the language
-		// is (much like JS) not strictly typed.
-		// p a i n
 		let picked = parseArgs([args[1]])[0];
-		args = args.slice(2).map(arg => !arg)
-		return args[picked]
+		args = args.slice(2).map(arg => !arg);
+		return args[picked];
+	},
+	goto:(args) => {
+		args = parseArgs(args.slice(1));
+		args.forEach(
+			arg=> run(tags[arg], arg, vars.args)
+		)
 	},
 	ret:(args) =>{
 		args = parseArgs(args)
@@ -342,12 +357,36 @@ file.forEach(
   }
 );
 
+let tags = {
+
+}
+
+Object.keys(functions).forEach((key, idx) => {
+	functions[key].forEach(
+		(data, idx) => {
+			if(data.startsWith("::")) {
+				tags[data.slice(2)] = functions[key].slice(idx+1)
+			}
+		}
+	)
+})
+
 let returnOptions = {
 	"return!":(out) => out.data
 };
 
 // Running the code
-function run(codeblock, fnName, args, ret = false) {
+function run(
+	// An array of strings to be interpreted
+	codeblock,
+	// The name of the function (to set it in global scope)
+	// This is mandatory by design so that the function name shown when debugging is always in sync with the current function
+	fnName,
+	// Any arguments passed
+	args, 
+	// Should this function return an output?
+	ret = false
+) {
 	vars.args = {}
   for(i in args) {
 		vars.args[`(${i})`] = args[i]
@@ -355,12 +394,17 @@ function run(codeblock, fnName, args, ret = false) {
 	globals.fnName = fnName;
   for (num in codeblock) {
 		globals.lineNum = num;
+		// Ignore comments
 		if(codeblock[num].startsWith("#!"))
+			continue
+		// Ignore tags
+		if(codeblock[num].startsWith("::"))
 			continue
     // proc == processable line
     let proc = codeblock[num].split(" ");
     // cmd == function to be run
     let cmd = proc[0];
+
     if (cmd in builtIns) {
       let out = builtIns[cmd](proc, num, fnName);
       if (ret) return out;
