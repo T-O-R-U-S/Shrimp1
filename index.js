@@ -29,13 +29,13 @@ let vars = {
 var globals = {
 	// lineNum & fnName are important for throwing errors
 	lineNum: 0,
-	fnName: "",
+	fnName: "Main",
 	// this is important to detect if the language is in safe mode
 	// or unsafe mode.
 	unsafe: false
 }
 
-let parseArgs = (args) => {
+function parseArgs(args) {
   const line = args.join(" ");
   //
   // The first solution was considered, but then scrapped because it did not honour the order of the arguments :/
@@ -53,7 +53,7 @@ let parseArgs = (args) => {
 	// would not honour the order of arguments
 
   let parsedArgs = line.match(
-		// String       Number/Float         Variable ref  Func    Double-   Array  Bool
+		// String       Number/Float         Variable ref  Func    Nested-   Array  Bool
 		//                                                         parse
     /(\$\S+(\.\S+)*)|(".*?(?<!\\)")|([0-9]+(\.[0-9]+)?)|(>.+?<)|!\(\S+\)|\[.*\]|(true|false)/g
   );
@@ -74,7 +74,6 @@ let parseArgs = (args) => {
     },
     ">": (elem) => run([elem.slice(1, -1)], globals.fnName, [], true),
     "!": (elem) => {
-      console.log(elem.split(" "));
       parseArgs(elem.slice(2, -1).split(" "));
     },
     '"': (elem) => elem.slice(1, -1).replace(/\\"/g, '"'),
@@ -87,8 +86,7 @@ let parseArgs = (args) => {
 		"f": () => false
   };
 	if(!parsedArgs) {
-		console.log(`Argument parser failed at line ${globals.lineNum} of ${globals.fnName}! \nMost likely due to invalid user input`)
-		exit(1)
+		return []
 	}
   return parsedArgs.map((elem) => {
     if (/\d+$/.test(elem)) return parseFloat(elem);
@@ -223,16 +221,18 @@ const builtIns = {
 		// Split args again (but using ":")
 		args = args.split(":");
 
-		// Important for later -- used to defined
+		// Important for later -- used to define
 		// how many times the line will loop for
 		let loopFor = parseInt(args.shift());
 		
 		// Trimming down args[0] to stop unknown
 		// fn errors
 		args[0] = args[0].trim();
-		
-		for(let i = loopFor; i > 0; i--) {
-			run([args[0]], globals.fnName, args[0].split(" "));
+
+		for(let i = 0; i < loopFor; i++) {
+			let cmdArgs = args.slice(1);
+			cmdArgs = [i, ...parseArgs(cmdArgs)]
+			run([args[0]], globals.fnName, cmdArgs);
 		}
 	},
 	eq: (args) => { 
@@ -384,14 +384,15 @@ function run(
 	fnName,
 	// Any arguments passed
 	args, 
-	// Should this function return an output?
+	// Decides whether the function should return an output or not
 	ret = false
 ) {
+	globals.fnName = fnName;
+	// Arguments that were passed to the function
 	vars.args = {}
   for(i in args) {
 		vars.args[`(${i})`] = args[i]
 	}
-	globals.fnName = fnName;
   for (num in codeblock) {
 		globals.lineNum = num;
 		// Ignore comments

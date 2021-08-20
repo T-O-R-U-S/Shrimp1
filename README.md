@@ -1,7 +1,27 @@
 # Shrimp -- the unconventional programming language
 
+An unconventional and badly-designed language, picking up all the mistakes of the past. Truly, a sight to behold.
+
+*This* is the language of the past. No more futuristic, modern languages. We must return to our sea origins and become
+fish once more, living a simple life and not focusing about anything more than raw survival.
+
 Taste of the syntax:
 ```
+@Main {
+  Function "Hello there!"
+}
+
+@Function {
+  #! You don't specify the parameters
+  #! in the function declaration, 
+  #! to ensure as many runtime errors
+  #! as possible. :)
+
+  display $(1)
+
+  #! This language is zero-based, but
+  #! $(0) is the function's name.
+}
 ```
 
 ## Conventions
