@@ -75,6 +75,7 @@ This one is a bit unconventional, but If statements can only execute functions.
 ```
 @Main {
   if true: MyFunction
+  if true: display "Hello world!"
 }
 
 @MyFunction {
@@ -99,7 +100,7 @@ var mynum 3.5
 display $mynum
 #! 3.5
 
-#! Floats and integers are essentially the same type (Number), so can be added together
+#! Shrimp doesn't care if one value is a float or a number. They will still be added.
 var mynum >add $mynum 3<
 display $mynum
 #! 6.5
