@@ -5,7 +5,7 @@
   "main": "index.js",
   "repository": "https://github.com/T-O-R-U-S/Shrimp.git",
   "author": "T-O-R-U-S <bageliq@protonmail.com>",
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE.MD",
   "private": false,
   "dependencies": {
     "prompt": "^1.1.0",
