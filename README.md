@@ -91,7 +91,6 @@ var mystr "Hello! I am a string! I can be displayed :)"
 display $mystr
 var mystr >concat $mystr " But I can also be logged :D"<
 log $mystr
-#! Logging is an unofficial part of the Shrimp standard
 ```
 
 The number
@@ -121,8 +120,7 @@ The boolean
 The array
 ```
 #! An array is best "logged". This is basically a native JS console.log on the base type.
-#! It has fancier formatting too :) Though I really should get around to properly formatting
-#! arrays as part of the "proper" Shrimp standard...
+#! It has fancier formatting too :)
 var myarr ["Hi! I am an array", 42, "We can store multiple types!", ["And we can be nested too!"]]
 ```
 
